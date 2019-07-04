@@ -50,12 +50,12 @@ total_losses_unrealised = 0.0
 #print("The type of result: ", type(result_data))
 
 try:
-    if (os.fileexists)
-
+    if (os.fileexists):
+        pass
     else:
-        print file doesn't exist
+        print ("file doesn't exist")
 except expression as identifier:
-    print there was file reading error
+    print ("there was file reading error")
 
 for company in result_data:
     #print('Company')
