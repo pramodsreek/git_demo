@@ -154,16 +154,23 @@ def add_live_unit_price_share_hold(reader, price_file = None):
     print(price_file)
 
     all_units_with_calculations = []
+    total_capital_gain_discounted = 0
+    total_capital_gain_nondiscounted = 0
+    total_capital_loss = 0
+    total_units = 0
+    total_value = 0
+    total_cost_base = 0
     for raw in reader:
         new_dict_values = collection.OrderedDict()
-       
         
+        value = 0
         unit_price = 0
         number_of_units = 0
         cost_base = 0
         capital_gain_discounted = 0
         capital_gain_nondiscounted = 0
         capital_loss = 0
+        
         todays_date = dt.datetime.now()
         date_of_purchase = dt.datetime.strptime('04/07/2019', '%d/%m/%Y')
         capital_gain_percentage = 0
@@ -194,7 +201,11 @@ def add_live_unit_price_share_hold(reader, price_file = None):
                 continue
         
         new_dict_values['Unit Price'] = round(unit_price,3)
-        new_dict_values['Value'] = round(unit_price * number_of_units, 3)
+        value = unit_price * number_of_units
+        total_value += value
+        total_units += number_of_units
+        total_cost_base += cost_base
+        new_dict_values['Value'] = round(value, 3)
         capital_gain_loss = (unit_price * number_of_units) -  cost_base
         days_held = (todays_date - date_of_purchase).days
         if (capital_gain_loss >= 0):
@@ -211,6 +222,9 @@ def add_live_unit_price_share_hold(reader, price_file = None):
             capital_gain_discounted = 0
             capital_gain_nondiscounted = 0
             capital_loss_percentage = (capital_loss/cost_base)*100
+        total_capital_gain_discounted += capital_gain_discounted
+        total_capital_gain_nondiscounted += capital_gain_nondiscounted
+        total_capital_loss += capital_loss
         new_dict_values['Capital Gain Non Discounted'] = round(capital_gain_nondiscounted,3)
         new_dict_values['Capital Gain Discounted'] = round(capital_gain_discounted,3)
         new_dict_values['Capital Loss'] = round(capital_loss,3)   
@@ -218,7 +232,18 @@ def add_live_unit_price_share_hold(reader, price_file = None):
         new_dict_values['Capital Loss Percentage'] = round(capital_loss_percentage,3)
         #new_dict_values.update(raw)
         all_units_with_calculations.append(new_dict_values)
-    return all_units_with_calculations
+    new_dict_values = collection.OrderedDict()
+    new_dict_values['TICKER'] = 'Total'
+    new_dict_values['Date of Purchase'] = ''
+    new_dict_values['Units'] = str(round(total_units, 0))
+    new_dict_values['Cost Base'] = str(round(total_cost_base, 3))
+    new_dict_values['Unit Price'] = ''
+    new_dict_values['Value'] = str(round(total_value, 3))
+    new_dict_values['Capital Gain Non Discounted'] = str(round(total_capital_gain_nondiscounted,3))
+    new_dict_values['Capital Gain Discounted'] = str(round(total_capital_gain_discounted,3))
+    new_dict_values['Capital Loss'] = str(round(total_capital_loss,3))
+    all_units_with_calculations.append(new_dict_values)
+    return all_units_with_calculations, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss
 
 
 
@@ -238,7 +263,7 @@ if __name__ == '__main__':
     try:
         share_file = convert_share_file_to_dict(args.input)
         price_file = convert_price_file_to_dict(args.price)
-        result = add_live_unit_price_share_hold(share_file, price_file)
+        result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file, price_file)
         write_to_file(result, args.output)
         print_to_console(result)
     except Exception as err:
