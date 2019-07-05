@@ -3,6 +3,9 @@ import collections as collection
 import csv
 from os import remove as delete_file
 from personal_sharehold_performance import add_live_unit_price_share_hold
+from personal_sharehold_performance import write_to_file
+from personal_sharehold_performance import convert_share_file_to_dict
+from personal_sharehold_performance import convert_price_file_to_dict
 
 def test_unit_price_and_calculate():
 
@@ -60,6 +63,16 @@ def test_unit_price_and_calculate1():
         final_line = lines[-1]
 
     assert final_line == TEST_TEXT_PRICE    
+
+    SHARE = convert_share_file_to_dict(TEST_FILENAME_SHARE)
+    PRICE = convert_price_file_to_dict(TEST_FILENAME_PRICE)
+
+    TEST_FILENAME_OUTPUT = "test_output.csv"
+    PROCESSED_DATA, _, _, _, _, _, _ = add_live_unit_price_share_hold(SHARE, PRICE)
+
+    write_to_file(PROCESSED_DATA, TEST_FILENAME_OUTPUT)
+
+
 
     delete_file(TEST_FILENAME_SHARE)
     delete_file(TEST_FILENAME_PRICE)

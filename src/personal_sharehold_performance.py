@@ -239,7 +239,7 @@ def convert_share_file_to_dict(filename):
     else:
         raise ShareCalculationException(f'The file {filename} does not exist.')
 
-def add_live_unit_price_share_hold(reader, price_file=None):
+def add_live_unit_price_share_hold(share_dict, price_dict=None):
     """
     The most important function to go through the share portfolio and calculate
     the capital gains discounted, capital gains non-discounted and loses.
@@ -251,9 +251,9 @@ def add_live_unit_price_share_hold(reader, price_file=None):
     file provided as input or from yahoo finance interface.
 
     Keyword arguments:
-        reader -- Handle to ordered dictionary of the share portfolio created
+        share_dict -- Handle to ordered dictionary of the share portfolio created
         from the input csv file.
-        price_file -- Optional dictionary of share prices, only required if user
+        price_dict -- Optional dictionary of share prices, only required if user
         wants to calculate the value of share portfolio based on a price.
     """
 
@@ -266,7 +266,7 @@ def add_live_unit_price_share_hold(reader, price_file=None):
     total_units = 0
     total_value = 0
     total_cost_base = 0
-    for raw in reader:
+    for raw in share_dict:
         new_dict_values = collection.OrderedDict()
         value = 0
         unit_price = 0
@@ -284,8 +284,8 @@ def add_live_unit_price_share_hold(reader, price_file=None):
             new_dict_values[key_sh] = value_sh
             if key_sh.lower() == 'ticker':
                 try:
-                    if price_file is not None:
-                        for name_sh, pr_ice in price_file.items():
+                    if price_dict is not None:
+                        for name_sh, pr_ice in price_dict.items():
                             if name_sh.lower() == value_sh.lower():
                                 unit_price = float(pr_ice)
                     else:
@@ -371,10 +371,10 @@ if __name__ == '__main__':
     ARGS = PARSER.parse_args()
 
     try:
-        SHARE_FILE = convert_share_file_to_dict(ARGS.input)
-        PRICE_FILE = None
+        SHARE_DICT = convert_share_file_to_dict(ARGS.input)
+        PRICE_DICT = None
         if ARGS.price is not None:
-            PRICE_FILE = convert_price_file_to_dict(ARGS.price)
+            PRICE_DICT = convert_price_file_to_dict(ARGS.price)
 
         WAIT_STRING = "Please be patient while your share holding value is calculated!"
         WAIT_TEXT_FORMAT = fg("white") + attr("bold") + bg("black")
@@ -382,7 +382,7 @@ if __name__ == '__main__':
         print(stylize(WAIT_STRING, WAIT_TEXT_FORMAT))
         print('\n')
 
-        PROCESSED_DATA, TOTAL_CST_BASE, TOTAL_VLUE, TOTAL_UNTS, TOTAL_CAPTAL_GAIN_NONDISCOUNTED, TOTAL_CAPTAL_GAIN_DISCOUNTED, TOTAL_CAPTAL_LOSS = add_live_unit_price_share_hold(SHARE_FILE, PRICE_FILE)
+        PROCESSED_DATA, TOTAL_CST_BASE, TOTAL_VLUE, TOTAL_UNTS, TOTAL_CAPTAL_GAIN_NONDISCOUNTED, TOTAL_CAPTAL_GAIN_DISCOUNTED, TOTAL_CAPTAL_LOSS = add_live_unit_price_share_hold(SHARE_DICT, PRICE_DICT)
 
         write_to_file(PROCESSED_DATA, ARGS.output)
         print_to_console(PROCESSED_DATA)
