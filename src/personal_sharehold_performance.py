@@ -1,7 +1,38 @@
 #!/usr/bin/python3
 """
-Personal Share Holding Performance is a tool that can summarise the value of share portfolio for a single user. The input 
+Module: Personal Share Holding Performance Check
+Author: Pramod S
+Contact: coderacademy
+Date: 2019/06/29
+Licence: GPLv3
+Version: 0.1
 
+Personal Share Holding Performance is a tool that can summarise the value of share portfolio for a single user. 
+The user should provide a file input with all the shares that user holds. The csv(comma separated file) file should contain the following data in the format below. 
+
+TICKER,Date of Purchase,Units,Cost Base
+ALQ,13/12/2008,10,190.71
+ALU,14/12/2008,10,377
+ALX,15/12/2008,10,88.87
+
+If the user wishes to calculate the total value of share holding based on a price, then a price file should be provided in the following format. 
+
+TICKER,Date,Unit Price
+ALQ,1/07/2019,19.071
+ALU,1/07/2019,37.7
+ALX,1/07/2019,8.887
+
+All the file should be in the current folder and should have permissions to read. 
+
+If the user wishes to write the output to a file, then the output filename should be provided.
+
+The arguments should be passed in the following format. The output file is written to current directory and permission to write file is required.
+
+python3 personal_sharehold_performance.py -i Capitalgains.csv -p Shareprice.csv -o output.csv
+
+If no price file is provided, the price will be retrieved using yahoo finance. This can only work for ASX shares. 
+
+The summary of output will have the following details. 
 ****** Summary of Share Holding - These are unrealised values ******
 Total Cost Base of Share Holding : 1617.21
 Total Value of Share Holding : 2100.4
@@ -10,11 +41,7 @@ Total Capital Gain that is not Discounted : 1164.59
 Total Capital Gain that is Discounted : 582.295
 Total Capital Losses : -681.4
 
-Author: Pramod S
-Contact: @coderacademy.edu.au
-Date: 2019/06/29
-Licence: GPLv3
-Version: 0.1
+
 
 """
 
@@ -28,6 +55,14 @@ from colored import fg, bg, attr, stylize
 
 
 def write_to_file(result, filename):
+    """
+        Writes output to a file. (An Ordered Dictionary data structure is used.)
+
+        Keyword arguments:
+        result -- an ordered dictionary of each share details as a row
+        filename -- The output file
+
+    """
     with open(filename, 'w', newline='') as csvfile:
         fieldnames = ['TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value', 
 'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 'Capital Gain Percentage', 'Capital Loss Percentage']
@@ -37,6 +72,14 @@ def write_to_file(result, filename):
             writer.writerow(result[x])
 
 def print_to_console(result):
+    """
+        Writes output to a console.
+
+        Keyword arguments:
+        result -- an ordered dictionary of each share details as a row
+        
+
+    """
     print("'TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value', " + 
 "'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 'Capital Gain Percentage', 'Capital Loss Percentage'")
     for x in range(len(result)): 
@@ -47,11 +90,19 @@ def print_to_console(result):
             else:
                 row = row + ',' + str(v)
         print(row)
-#def add_unit_price(ticker):
 
 
 
-def validate_price_file(reader):
+
+def validate_price_file_ret_dict(reader):
+    """
+        Validate input price file and if valid return dictionary of all prices. A dictionary is used to store the prices to avoid reading the file multiple time. This does not have to be ordered, as the output is not used for writing to a file or console. This method is used to validate the contents of input file to avoid unnecessary calls to external finance interfaces. If there is an issue with the content, an exception will be thrown and the calling module should handle the exception.
+
+        Keyword arguments:
+        reader -- A Ordered Dictionary reader was used, as it provided the functionality to load contents of csv file and maintain the order.
+        
+
+    """
     prices = {}
     ticker = ''
     price = 0.0
@@ -78,17 +129,30 @@ def validate_price_file(reader):
     return prices
 
 def convert_price_file_to_dict(filename):
+    """
+        Converts the input price file to a dictionary. The order is not important, but DictReader was used, as it is a superior utility to read a csv file. 
+
+        Keyword arguments:
+        file -- Name of the share price file provided by the user.
+        
+    """
     exists = os.path.isfile(filename)
     if exists:
         reader = csv.DictReader(open(filename))
-        return validate_price_file(reader)
+        return validate_price_file_ret_dict(reader)
     else:
         raise Exception(f'The file {filename} does not exist.')
 
 
 def validate_share_file_data(reader):
+    """
+        Validate input share holding file and if valid return True. If there is an issue with the content, an exception will be thrown and the calling module should handle the exception. Date is only validated for the format. The future date validation is not done. 
 
-    #fmt = ('%d/%m/%Y')
+        Keyword arguments:
+        reader -- A Ordered Dictionary reader was used, as it provided the functionality to load contents of csv file. Other data structures can be used instead of DictReader in this case, as the order is not necessarily important.
+        
+
+    """
     for raw in reader:
         
         for k, v in raw.items():
@@ -114,18 +178,32 @@ def validate_share_file_data(reader):
     return True
 
 def get_most_recent_share_price(ticker):
-    # get Apple's live quote price
+    """
+        Gets the most recent share price using yahoo finance. Only ASX shares are checked. If there is an issue with the ticker or fetching the data, an exception is thrown.
+        #price = si.get_live_price("ANZ.AX")
+
+        Keyword arguments:
+        ticker -- Ticker is the short code for ASX listed company.
+        
+    """
     try:
         
         price = si.get_live_price(ticker)
-        #price = si.get_live_price("ANZ.AX")
+        
         
         return price
     except ValueError:
         raise Exception("Error retrieving data from ASX. Please check the file to check errors with data. If unit prices can be retrieved manually, Please provide it in a file.")
 
 def get_recent_share_price(ticker, pricereader):
-    # get Apple's live quote price
+    """
+        Gets the share price from the file that was provided by the user. If there is an issue with the ticker or fetching the data or missing data, an exception is thrown.
+
+        Keyword arguments:
+        ticker -- Ticker is the short code for ASX listed company.
+        pricereader -- A dictionary of share prices. 
+        
+    """
     try:
         price = 0
         
@@ -142,6 +220,18 @@ def get_recent_share_price(ticker, pricereader):
         raise Exception("Error retrieving data from csv price file. Please check the files to validate data. Please provide it in a file with corrected data.")
 
 def print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss):
+    """
+        Prints summary of share portfolio of the user to console.
+
+        Keyword arguments:
+        total_cost_base -- Total Cost Base of Share Holding
+        total_value -- Total Value of Share Holding
+        total_units -- Total Units of Share Holding
+        total_capital_gain_nondiscounted -- Total Capital Gain that is not Discounted
+        total_capital_gain_discounted -- Total Capital Gain that is Discounted
+        total_capital_loss -- Total Capital Losses
+
+    """
     summary_text_format = fg("white") + attr("bold") + bg("blue")
     print(stylize("****** Summary of Share Holding - These are unrealised values ******", summary_text_format))
     summary_text_format = fg("white") + attr("bold") + bg("green")
@@ -155,6 +245,13 @@ def print_to_console_summary(total_cost_base, total_value, total_units, total_ca
 
 
 def convert_share_file_to_dict(filename):
+    """
+        Converts the share portfolio file to a Ordered Dictionary. It maintains the order of rows and columns. The Reader is the handle to Ordered dictionary and is used to go through rows and columns. An exception is thrown if there is an issue with the conversion.
+
+        Keyword arguments:
+        filename -- Filename of the share file. The file is in the same directory as the code. Placing the file in other directories is not tested for this release.  
+        
+    """
     exists = os.path.isfile(filename)
     if exists:
         
@@ -165,13 +262,17 @@ def convert_share_file_to_dict(filename):
         raise Exception(f'The file {filename} does not exist.')
 
 def add_live_unit_price_share_hold(reader, price_file = None):
-    #Calculate the capital gains discounted, capital gains non-discounted and loses. Discounts are calculated based on the date of purchase and based on Australian Taxation Offices capital gains discounting process.
-    #Calculate the percentage gains or loses based on the ticker + Date of purchase + Units. There will be option of writing the output to a file.
+    """
+    The most important function to go through the share portfolio and calculate the capital gains discounted, capital gains non-discounted and loses. Discounts are calculated based on the date of purchase and based on Australian Taxation Offices capital gains discounting process.
+    Calculates the percentage gains or loses based on the ticker + Date of purchase + Units. Dates in future is not validated in this release. The calculations can be done based on the price file provided as input or from yahoo finance interface. 
     
-    #pricereader = ""
+    Keyword arguments:
+        reader -- Handle to ordered dictionary of the share portfolio created from the input csv file.  
+        price_file -- Optional dictionary of share prices, only required if user wants to calculate the value of share portfolio based on a price.  
     
-    
-    
+    """
+
+    # a lot of variables are used, it should be cleaned up in future releases. 
 
     all_units_with_calculations = []
     total_capital_gain_discounted = 0
@@ -250,8 +351,10 @@ def add_live_unit_price_share_hold(reader, price_file = None):
         new_dict_values['Capital Loss'] = round(capital_loss,3)   
         new_dict_values['Capital Gain Percentage'] = round(capital_gain_percentage,3)
         new_dict_values['Capital Loss Percentage'] = round(capital_loss_percentage,3)
-        #new_dict_values.update(raw)
+        
         all_units_with_calculations.append(new_dict_values)
+
+    # adding the sum or total columns to last line. It is ordered, so that it appears properly on excel file
     new_dict_values = collection.OrderedDict()
     new_dict_values['TICKER'] = 'Total'
     new_dict_values['Date of Purchase'] = ''
@@ -269,7 +372,7 @@ def add_live_unit_price_share_hold(reader, price_file = None):
 
     
 
-
+# Main function equivalent to run it as a terminal app. 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Personal Shareholding Performance')
@@ -286,21 +389,22 @@ if __name__ == '__main__':
 
         share_file = convert_share_file_to_dict(args.input)
         
+        price_file = None
+
         if args.price is not None:
             price_file = convert_price_file_to_dict(args.price)
             
-            result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file, price_file)
-        else:
-            
-            result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file)
+        result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file, price_file)
+       
+        
         
         write_to_file(result, args.output)
+        
         print_to_console(result)
 
         print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss)
 
     except Exception as err:
-        #print(str(err))
         error_text_format = fg("white") + attr("bold") + bg("red")
         print(stylize(str(err), error_text_format))
     
