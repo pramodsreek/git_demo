@@ -99,7 +99,7 @@ def print_to_console(display_rows):
     print(head_er)
     for x in range(len(display_rows)):
         row = ''
-        for _, v in result[x].items():
+        for _, v in display_rows[x].items():
             if row == '':
                 row += v
             else:
@@ -367,24 +367,24 @@ if __name__ == '__main__':
     ARGS = PARSER.parse_args()
 
     try:
-        share_file = convert_share_file_to_dict(ARGS.input)
-        price_file = None
+        SHARE_FILE = convert_share_file_to_dict(ARGS.input)
+        PRICE_FILE = None
         if ARGS.price is not None:
-            price_file = convert_price_file_to_dict(ARGS.price)
+            PRICE_FILE = convert_price_file_to_dict(ARGS.price)
 
-        wait_string = "Please be patient while your share holding value is calculated!"
-        wait_text_format = fg("white") + attr("bold") + bg("black")
+        WAIT_STRING = "Please be patient while your share holding value is calculated!"
+        WAIT_TEXT_FORMAT = fg("white") + attr("bold") + bg("black")
         print('\n')
-        print(stylize(wait_string, wait_text_format))
+        print(stylize(WAIT_STRING, WAIT_TEXT_FORMAT))
         print('\n')
 
-        result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file, price_file)
+        PROCESSED_DATA, TOTAL_CST_BASE, TOTAL_VLUE, TOTAL_UNTS, TOTAL_CAPTAL_GAIN_NONDISCOUNTED, TOTAL_CAPTAL_GAIN_DISCOUNTED, TOTAL_CAPTAL_LOSS = add_live_unit_price_share_hold(SHARE_FILE, PRICE_FILE)
 
-        write_to_file(result, ARGS.output)
-        print_to_console(result)
+        write_to_file(PROCESSED_DATA, ARGS.output)
+        print_to_console(PROCESSED_DATA)
 
-        print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss)
+        print_to_console_summary(TOTAL_CST_BASE, TOTAL_VLUE, TOTAL_UNTS, TOTAL_CAPTAL_GAIN_NONDISCOUNTED, TOTAL_CAPTAL_GAIN_DISCOUNTED, TOTAL_CAPTAL_LOSS)
 
     except ShareCalculationException as err:
-        error_text_format = fg("white") + attr("bold") + bg("red")
-        print(stylize(str(err), error_text_format))
+        ERROR_TEXT_FORMAT = fg("white") + attr("bold") + bg("red")
+        print(stylize(str(err), ERROR_TEXT_FORMAT))
