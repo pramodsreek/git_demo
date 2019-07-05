@@ -254,7 +254,7 @@ def add_live_unit_price_share_hold(reader, price_file = None):
     new_dict_values['Capital Gain Discounted'] = str(round(total_capital_gain_discounted,3))
     new_dict_values['Capital Loss'] = str(round(total_capital_loss,3))
     all_units_with_calculations.append(new_dict_values)
-    return all_units_with_calculations, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss
+    return all_units_with_calculations, round(total_cost_base,3), round(total_value,3), round(total_units,3), round(total_capital_gain_nondiscounted,3), round(total_capital_gain_discounted,3), round(total_capital_loss,3)
 
 
 
