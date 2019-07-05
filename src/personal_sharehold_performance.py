@@ -126,7 +126,7 @@ def validate_price_file_ret_dict(reader):
                 raise Exception(
                     "Data in the price file is not valid! None of the values in " +
                     "the header or price data can be empty!")
-            elif (k.lower() not in ('ticker', 'date', 'unit price')):
+            elif k.lower() not in ('ticker', 'date', 'unit price'):
                 raise Exception(
                     "Data in the price file is not valid! Please make sure the " +
                     "first row or header is correct. The header in the csv file " +
@@ -173,16 +173,18 @@ def validate_share_file_data(reader):
         reader -- A Ordered Dictionary reader was used, as it provided the functionality to load
         contents of csv file. Other data structures can be used instead of DictReader in this case,
         as the order is not necessarily important.
-        
-
     """
     for raw in reader:
-        
         for k, v in raw.items():
-            if (k is None) or (str(k).strip() == "") or (v is None) or (str(v).strip() == ""): 
-                raise Exception("Data in the share file is not valid! None of the values in the header or share data can be empty!")
-            elif (k.lower() not in ('ticker', 'date of purchase', 'units', 'cost base')):
-                raise Exception("Data in the share file is not valid! Please make sure the first row or header is correct. The header in the csv file should have 'ticker','date of purchase','units','cost base'")
+            if (k is None) or (str(k).strip() == "") or (v is None) or (str(v).strip() == ""):
+                raise Exception(
+                    "Data in the share file is not valid! None of the values in the header " +
+                    "or share data can be empty!")
+            elif k.lower() not in ('ticker', 'date of purchase', 'units', 'cost base'):
+                raise Exception(
+                    "Data in the share file is not valid! Please make sure the first " +
+                    "row or header is correct. The header in the csv file should have " +
+                    "'ticker','date of purchase','units','cost base'")
             elif k.lower() == 'date of purchase':
                 try:
                     dt.datetime.strptime(v, '%d/%m/%Y')
@@ -193,7 +195,7 @@ def validate_share_file_data(reader):
                     float(v)
                 except ValueError:
                     raise Exception("Cost base should be float!")
-            elif (k.lower() == 'Units'):
+            elif k.lower() == 'Units':
                 try:
                     int(v)
                 except ValueError:
@@ -211,13 +213,12 @@ def get_most_recent_share_price(ticker):
     """
 
     try:
-        
         price = si.get_live_price(ticker)
-        
-        
         return price
     except ValueError:
-        raise Exception("Error retrieving data from ASX. Please check the file to check errors with data. If unit prices can be retrieved manually, Please provide it in a file.")
+        raise Exception(
+            "Error retrieving data from ASX. Please check the file to check errors with data. " +
+            "If unit prices can be retrieved manually, Please provide it in a file.")
 
 def get_recent_share_price(ticker, pricereader):
     """
@@ -226,19 +227,19 @@ def get_recent_share_price(ticker, pricereader):
 
         Keyword arguments:
         ticker -- Ticker is the short code for ASX listed company.
-        pricereader -- A dictionary of share prices. 
-        
+        pricereader -- A dictionary of share prices.
+
     """
     try:
         price = 0
-        
+
         for raw in pricereader:
-            
+
             for k, v in raw.items():
                 if (k.lower() == 'ticker' and v.lower() != ticker.lower()):
                     pass
 
-                if (k.lower() == 'unit price'):
+                if k.lower() == 'unit price':
                     price = v
         return price
     except ValueError:
@@ -260,7 +261,8 @@ def print_to_console_summary(total_cost_base, total_value, total_units, total_ca
 
     """
     summary_text_format = fg("white") + attr("bold") + bg("blue")
-    print(stylize("****** Summary of Share Holding - These are unrealised values ******", summary_text_format))
+    print(
+        stylize("****** Summary of Share Holding - These are unrealised values ******", summary_text_format))
     summary_text_format = fg("white") + attr("bold") + bg("green")
     print(stylize("Total Cost Base of Share Holding : " + str(total_cost_base), summary_text_format))
     print(stylize("Total Value of Share Holding : " + str(total_value), summary_text_format))
@@ -287,7 +289,6 @@ def convert_share_file_to_dict(filename):
     """
     exists = os.path.isfile(filename)
     if exists:
-        
         reader = csv.DictReader(open(filename))
         #validate_share_file_data(reader)
         return reader
@@ -309,11 +310,10 @@ def add_live_unit_price_share_hold(reader, price_file=None):
         reader -- Handle to ordered dictionary of the share portfolio created
         from the input csv file.
         price_file -- Optional dictionary of share prices, only required if user
-        wants to calculate the value of share portfolio based on a price.  
-    
+        wants to calculate the value of share portfolio based on a price.
     """
 
-    # a lot of variables are used, it should be cleaned up in future releases. 
+    # a lot of variables are used, it should be cleaned up in future releases.
 
     all_units_with_calculations = []
     total_capital_gain_discounted = 0
@@ -324,7 +324,6 @@ def add_live_unit_price_share_hold(reader, price_file=None):
     total_cost_base = 0
     for raw in reader:
         new_dict_values = collection.OrderedDict()
-        
         value = 0
         unit_price = 0
         number_of_units = 0
@@ -332,36 +331,32 @@ def add_live_unit_price_share_hold(reader, price_file=None):
         capital_gain_discounted = 0
         capital_gain_nondiscounted = 0
         capital_loss = 0
-        
+
         todays_date = dt.datetime.now()
         date_of_purchase = dt.datetime.strptime('04/07/2019', '%d/%m/%Y')
         capital_gain_percentage = 0
         capital_loss_percentage = 0
         for k, v in raw.items():
-            
             new_dict_values[k] = v
-            if (k.lower() == 'ticker'):
+            if k.lower() == 'ticker':
                 try:
-                    if (price_file != None):
+                    if price_file != None:
                         for p, r in price_file.items():
-                            if(p.lower() == v.lower()):
+                            if p.lower() == v.lower():
                                 unit_price = float(r)
                     else:
                         unit_price = get_most_recent_share_price(v.upper()+'.AX')
                 except Exception as e:
                     raise e
-                
-                
-                
             elif k.lower() == 'units':
-                number_of_units = float(v)   
+                number_of_units = float(v)
             elif k.lower() == 'cost base':
                 cost_base = float(v)
             elif k.lower() == 'date of purchase':
                 date_of_purchase = dt.datetime.strptime(v, '%d/%m/%Y')
             else:
                 continue
-        
+
         new_dict_values['Unit Price'] = round(unit_price, 3)
         value = unit_price * number_of_units
         total_value += value
@@ -389,10 +384,10 @@ def add_live_unit_price_share_hold(reader, price_file=None):
         total_capital_loss += capital_loss
         new_dict_values['Capital Gain Non Discounted'] = round(capital_gain_nondiscounted, 3)
         new_dict_values['Capital Gain Discounted'] = round(capital_gain_discounted, 3)
-        new_dict_values['Capital Loss'] = round(capital_loss, 3)   
+        new_dict_values['Capital Loss'] = round(capital_loss, 3)
         new_dict_values['Capital Gain Percentage'] = round(capital_gain_percentage, 3)
         new_dict_values['Capital Loss Percentage'] = round(capital_loss_percentage, 3)
-        
+
         all_units_with_calculations.append(new_dict_values)
 
     # adding the sum or total columns to last line. It is ordered, so that it appears properly on excel file
@@ -409,9 +404,6 @@ def add_live_unit_price_share_hold(reader, price_file=None):
     all_units_with_calculations.append(new_dict_values)
     return all_units_with_calculations, round(total_cost_base, 3), round(total_value, 3), round(total_units, 3), round(total_capital_gain_nondiscounted, 3), round(total_capital_gain_discounted, 3), round(total_capital_loss, 3)
 
-
-
-    
 
 # Main function equivalent to run it as a terminal app. 
 if __name__ == '__main__':
