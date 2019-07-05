@@ -132,6 +132,17 @@ def get_recent_share_price(ticker, pricereader):
     except ValueError:
         raise Exception("Error retrieving data from csv price file. Please check the files to validate data. Please provide it in a file with corrected data.")
 
+def print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss):
+    summary_text_format = fg("white") + attr("bold") + bg("blue")
+    print(stylize("****** Summary of Share Holding - These are unrealised values ******", summary_text_format))
+    summary_text_format = fg("white") + attr("bold") + bg("green")
+    print(stylize("Total Cost Base of Share Holding : " + str(total_cost_base), summary_text_format))
+    print(stylize("Total Value of Share Holding : " + str(total_value), summary_text_format))
+    print(stylize("Total Units of Share Holding : " + str(total_units), summary_text_format))
+    print(stylize("Total Capital Gain that is not Discounted : " + str(total_capital_gain_nondiscounted), summary_text_format))
+    print(stylize("Total Capital Gain that is Discounted : " + str(total_capital_gain_discounted), summary_text_format))
+    summary_text_format = fg("white") + attr("bold") + bg("red")
+    print(stylize("Total Capital Losses : " + str(total_capital_loss), summary_text_format))
 
 
 def convert_share_file_to_dict(filename):
@@ -261,11 +272,24 @@ if __name__ == '__main__':
     
 
     try:
+
+        
+
         share_file = convert_share_file_to_dict(args.input)
-        price_file = convert_price_file_to_dict(args.price)
-        result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file, price_file)
+        
+        if args.price is not None:
+            price_file = convert_price_file_to_dict(args.price)
+            print('price file is no None')
+            result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file, price_file)
+        else:
+            print('price file is None')
+            result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file)
+        
         write_to_file(result, args.output)
         print_to_console(result)
+
+        print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss)
+
     except Exception as err:
         #print(str(err))
         error_text_format = fg("white") + attr("bold") + bg("red")
