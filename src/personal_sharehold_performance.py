@@ -128,11 +128,9 @@ def get_recent_share_price(ticker, pricereader):
     # get Apple's live quote price
     try:
         price = 0
-        print("adfffffffffffffffffffffffffffffffffffff")
-        print(type(pricereader))
+        
         for raw in pricereader:
-            print("adfffffffffffffffffffffffffffffffffffff")
-            print(type(raw))
+            
             for k, v in raw.items():
                 if (k.lower() == 'ticker' and v.lower() != ticker.lower()):
                     pass
@@ -159,7 +157,7 @@ def print_to_console_summary(total_cost_base, total_value, total_units, total_ca
 def convert_share_file_to_dict(filename):
     exists = os.path.isfile(filename)
     if exists:
-        print("The file exists")
+        
         reader = csv.DictReader(open(filename))
         #validate_share_file_data(reader)
         return reader
@@ -173,7 +171,7 @@ def add_live_unit_price_share_hold(reader, price_file = None):
     #pricereader = ""
     
     
-    print(price_file)
+    
 
     all_units_with_calculations = []
     total_capital_gain_discounted = 0
@@ -290,10 +288,10 @@ if __name__ == '__main__':
         
         if args.price is not None:
             price_file = convert_price_file_to_dict(args.price)
-            print('price file is no None')
+            
             result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file, price_file)
         else:
-            print('price file is None')
+            
             result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file)
         
         write_to_file(result, args.output)
