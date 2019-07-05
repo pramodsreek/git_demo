@@ -59,12 +59,12 @@ from yahoo_fin import stock_info as si
 from colored import fg, bg, attr, stylize
 
 
-def write_to_file(result, filename):
+def write_to_file(calculations, filename):
     """
         Writes output to a file. (An Ordered Dictionary data structure is used.)
 
         Keyword arguments:
-        result -- an ordered dictionary of each share details as a row
+        calculations -- an ordered dictionary of each share details as a row
         filename -- The output file
 
     """
@@ -74,21 +74,21 @@ def write_to_file(result, filename):
         'Capital Gain Percentage', 'Capital Loss Percentage']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for x in range(len(result)): 
-            writer.writerow(result[x])
+        for x in range(len(calculations)): 
+            writer.writerow(calculations[x])
 
-def print_to_console(result):
+def print_to_console(displayRows):
     """
         Writes output to a console.
 
         Keyword arguments:
-        result -- an ordered dictionary of each share details as a row
+        displayRows -- an ordered dictionary of each share details as a row
         
 
     """
     print("'TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value', " + 
         "'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 'Capital Gain Percentage', 'Capital Loss Percentage'")
-    for x in range(len(result)): 
+    for x in range(len(displayRows)): 
         row = ''
         for _, v in result[x].items():
             if (row == ''):
