@@ -102,10 +102,16 @@ def print_to_console(result):
 
 def validate_price_file_ret_dict(reader):
     """
-        Validate input price file and if valid return dictionary of all prices. A dictionary is used to store the prices to avoid reading the file multiple time. This does not have to be ordered, as the output is not used for writing to a file or console. This method is used to validate the contents of input file to avoid unnecessary calls to external finance interfaces. If there is an issue with the content, an exception will be thrown and the calling module should handle the exception.
+        Validate input price file and if valid return dictionary of all prices. A dictionary is
+        used to store the prices to avoid reading the file multiple time. This does not have to
+        be ordered, as the output is not used for writing to a file or console. This method is
+        used to validate the contents of input file to avoid unnecessary calls to external
+        finance interfaces. If there is an issue with the content, an exception will be thrown
+        and the calling module should handle the exception.
 
         Keyword arguments:
-        reader -- A Ordered Dictionary reader was used, as it provided the functionality to load contents of csv file and maintain the order.
+        reader -- A Ordered Dictionary reader was used, as it provided the functionality to load
+        contents of csv file and maintain the order.
         
 
     """
@@ -136,7 +142,8 @@ def validate_price_file_ret_dict(reader):
 
 def convert_price_file_to_dict(filename):
     """
-        Converts the input price file to a dictionary. The order is not important, but DictReader was used, as it is a superior utility to read a csv file. 
+        Converts the input price file to a dictionary. The order is not important, but DictReader
+        was used, as it is a superior utility to read a csv file. 
 
         Keyword arguments:
         file -- Name of the share price file provided by the user.
@@ -152,10 +159,14 @@ def convert_price_file_to_dict(filename):
 
 def validate_share_file_data(reader):
     """
-        Validate input share holding file and if valid return True. If there is an issue with the content, an exception will be thrown and the calling module should handle the exception. Date is only validated for the format. The future date validation is not done. 
+        Validate input share holding file and if valid return True. If there is an issue with
+        the content, an exception will be thrown and the calling module should handle the
+        exception. Date is only validated for the format. The future date validation is not done.
 
         Keyword arguments:
-        reader -- A Ordered Dictionary reader was used, as it provided the functionality to load contents of csv file. Other data structures can be used instead of DictReader in this case, as the order is not necessarily important.
+        reader -- A Ordered Dictionary reader was used, as it provided the functionality to load
+        contents of csv file. Other data structures can be used instead of DictReader in this case,
+        as the order is not necessarily important.
         
 
     """
@@ -185,7 +196,8 @@ def validate_share_file_data(reader):
 
 def get_most_recent_share_price(ticker):
     """
-        Gets the most recent share price using yahoo finance. Only ASX shares are checked. If there is an issue with the ticker or fetching the data, an exception is thrown.
+        Gets the most recent share price using yahoo finance. Only ASX shares are checked.
+        If there is an issue with the ticker or fetching the data, an exception is thrown.
         #price = si.get_live_price("ANZ.AX")
 
         Keyword arguments:
@@ -203,7 +215,8 @@ def get_most_recent_share_price(ticker):
 
 def get_recent_share_price(ticker, pricereader):
     """
-        Gets the share price from the file that was provided by the user. If there is an issue with the ticker or fetching the data or missing data, an exception is thrown.
+        Gets the share price from the file that was provided by the user. If there is an
+        issue with the ticker or fetching the data or missing data, an exception is thrown.
 
         Keyword arguments:
         ticker -- Ticker is the short code for ASX listed company.
@@ -352,11 +365,11 @@ def add_live_unit_price_share_hold(reader, price_file = None):
         total_capital_gain_discounted += capital_gain_discounted
         total_capital_gain_nondiscounted += capital_gain_nondiscounted
         total_capital_loss += capital_loss
-        new_dict_values['Capital Gain Non Discounted'] = round(capital_gain_nondiscounted,3)
-        new_dict_values['Capital Gain Discounted'] = round(capital_gain_discounted,3)
-        new_dict_values['Capital Loss'] = round(capital_loss,3)   
-        new_dict_values['Capital Gain Percentage'] = round(capital_gain_percentage,3)
-        new_dict_values['Capital Loss Percentage'] = round(capital_loss_percentage,3)
+        new_dict_values['Capital Gain Non Discounted'] = round(capital_gain_nondiscounted, 3)
+        new_dict_values['Capital Gain Discounted'] = round(capital_gain_discounted, 3)
+        new_dict_values['Capital Loss'] = round(capital_loss, 3)   
+        new_dict_values['Capital Gain Percentage'] = round(capital_gain_percentage, 3)
+        new_dict_values['Capital Loss Percentage'] = round(capital_loss_percentage, 3)
         
         all_units_with_calculations.append(new_dict_values)
 
@@ -368,11 +381,11 @@ def add_live_unit_price_share_hold(reader, price_file = None):
     new_dict_values['Cost Base'] = str(round(total_cost_base, 3))
     new_dict_values['Unit Price'] = ''
     new_dict_values['Value'] = str(round(total_value, 3))
-    new_dict_values['Capital Gain Non Discounted'] = str(round(total_capital_gain_nondiscounted,3))
-    new_dict_values['Capital Gain Discounted'] = str(round(total_capital_gain_discounted,3))
+    new_dict_values['Capital Gain Non Discounted'] = str(round(total_capital_gain_nondiscounted, 3))
+    new_dict_values['Capital Gain Discounted'] = str(round(total_capital_gain_discounted, 3))
     new_dict_values['Capital Loss'] = str(round(total_capital_loss,3))
     all_units_with_calculations.append(new_dict_values)
-    return all_units_with_calculations, round(total_cost_base,3), round(total_value,3), round(total_units,3), round(total_capital_gain_nondiscounted,3), round(total_capital_gain_discounted,3), round(total_capital_loss,3)
+    return all_units_with_calculations, round(total_cost_base,3), round(total_value, 3), round(total_units, 3), round(total_capital_gain_nondiscounted, 3), round(total_capital_gain_discounted, 3), round(total_capital_loss, 3)
 
 
 
