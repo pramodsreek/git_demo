@@ -188,17 +188,17 @@ def get_most_recent_share_price(ticker):
 
 
 
-def print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss):
+def print_to_console_summary(t_cost_base, t_value, t_units, t_capital_gain_ndiscounted, t_capital_gain_discounted, t_capital_loss):
     """
         Prints summary of share portfolio of the user to console.
 
         Keyword arguments:
-        total_cost_base -- Total Cost Base of Share Holding
-        total_value -- Total Value of Share Holding
-        total_units -- Total Units of Share Holding
-        total_capital_gain_nondiscounted -- Total Capital Gain that is not Discounted
-        total_capital_gain_discounted -- Total Capital Gain that is Discounted
-        total_capital_loss -- Total Capital Losses
+        t_cost_base -- Total Cost Base of Share Holding
+        t_value -- Total Value of Share Holding
+        t_units -- Total Units of Share Holding
+        t_capital_gain_ndiscounted -- Total Capital Gain that is not Discounted
+        t_capital_gain_discounted -- Total Capital Gain that is Discounted
+        t_capital_loss -- Total Capital Losses
 
     """
     print('\n')
@@ -206,13 +206,13 @@ def print_to_console_summary(total_cost_base, total_value, total_units, total_ca
     print_text = "****** Summary of Share Holding - These are unrealised values ******"
     print(stylize(print_text, summary_text_format))
     summary_text_format = fg("white") + attr("bold") + bg("green")
-    print(stylize("Total Cost Base of Share Holding : " + str(total_cost_base), summary_text_format))
-    print(stylize("Total Value of Share Holding : " + str(total_value), summary_text_format))
-    print(stylize("Total Units of Share Holding : " + str(total_units), summary_text_format))
-    print(stylize("Total Capital Gain that is not Discounted : " + str(total_capital_gain_nondiscounted), summary_text_format))
-    print(stylize("Total Capital Gain that is Discounted : " + str(total_capital_gain_discounted), summary_text_format))
+    print(stylize("Total Cost Base of Share Holding : " + str(t_cost_base), summary_text_format))
+    print(stylize("Total Value of Share Holding : " + str(t_value), summary_text_format))
+    print(stylize("Total Units of Share Holding : " + str(t_units), summary_text_format))
+    print(stylize("Total Capital Gain that is not Discounted : " + str(t_capital_gain_ndiscounted), summary_text_format))
+    print(stylize("Total Capital Gain that is Discounted : " + str(t_capital_gain_discounted), summary_text_format))
     summary_text_format = fg("white") + attr("bold") + bg("red")
-    print(stylize("Total Capital Losses : " + str(total_capital_loss), summary_text_format))
+    print(stylize("Total Capital Losses : " + str(t_capital_loss), summary_text_format))
     print('\n')
 
 
