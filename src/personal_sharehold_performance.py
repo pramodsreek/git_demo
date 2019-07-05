@@ -86,6 +86,7 @@ def print_to_console(display_rows):
         display_rows -- an ordered dictionary of each share details as a row
 
     """
+    print('*************************************')
     head_er = (
         "'TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value', " +
         "'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', " +
@@ -99,7 +100,7 @@ def print_to_console(display_rows):
             else:
                 row = row + ',' + str(v)
         print(row)
-
+    print('*************************************')
 
 
 
@@ -260,6 +261,7 @@ def print_to_console_summary(total_cost_base, total_value, total_units, total_ca
         total_capital_loss -- Total Capital Losses
 
     """
+    print('\n')
     summary_text_format = fg("white") + attr("bold") + bg("blue")
     print(stylize("****** Summary of Share Holding - These are unrealised values ******", summary_text_format))
     summary_text_format = fg("white") + attr("bold") + bg("green")
@@ -270,6 +272,7 @@ def print_to_console_summary(total_cost_base, total_value, total_units, total_ca
     print(stylize("Total Capital Gain that is Discounted : " + str(total_capital_gain_discounted), summary_text_format))
     summary_text_format = fg("white") + attr("bold") + bg("red")
     print(stylize("Total Capital Losses : " + str(total_capital_loss), summary_text_format))
+    print('\n')
 
 
 def convert_share_file_to_dict(filename):
@@ -426,6 +429,12 @@ if __name__ == '__main__':
         price_file = None
         if ARGS.price is not None:
             price_file = convert_price_file_to_dict(ARGS.price)
+
+        wait_string = "Please be patient while your share holding value is calculated!"
+        wait_text_format = fg("white") + attr("bold") + bg("black")
+        print('\n')
+        print(stylize(wait_string, wait_text_format))
+        print('\n')
 
         result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file, price_file)
 
