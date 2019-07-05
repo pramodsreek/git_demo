@@ -97,13 +97,13 @@ def print_to_console(display_rows):
         "'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', " +
         "'Capital Gain Percentage', 'Capital Loss Percentage'")
     print(head_er)
-    for x in range(len(display_rows)):
+    for csv_row_index in range(len(display_rows)):
         row = ''
-        for _, v in display_rows[x].items():
+        for _, row_line in display_rows[csv_row_index].items():
             if row == '':
-                row += v
+                row += row_line
             else:
-                row = row + ',' + str(v)
+                row = row + ',' + str(row_line)
         print(row)
     print('*************************************')
 
