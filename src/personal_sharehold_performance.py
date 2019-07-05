@@ -62,7 +62,7 @@ class ShareCalculationException(Exception):
     """
     Defining a customised exception
     """
-    pass
+    #pass
 
 def write_to_file(calculations, filename):
     """
@@ -209,8 +209,10 @@ def print_to_console_summary(t_cost_base, t_value, t_units, t_capital_gain_ndisc
     print(stylize("Total Cost Base of Share Holding : " + str(t_cost_base), summary_text_format))
     print(stylize("Total Value of Share Holding : " + str(t_value), summary_text_format))
     print(stylize("Total Units of Share Holding : " + str(t_units), summary_text_format))
-    print(stylize("Total Capital Gain that is not Discounted : " + str(t_capital_gain_ndiscounted), summary_text_format))
-    print(stylize("Total Capital Gain that is Discounted : " + str(t_capital_gain_discounted), summary_text_format))
+    print_text = "Total Capital Gain that is not Discounted : " + str(t_capital_gain_ndiscounted)
+    print(stylize(print_text, summary_text_format))
+    print_text = "Total Capital Gain that is Discounted : " + str(t_capital_gain_discounted)
+    print(stylize(print_text, summary_text_format))
     summary_text_format = fg("white") + attr("bold") + bg("red")
     print(stylize("Total Capital Losses : " + str(t_capital_loss), summary_text_format))
     print('\n')
@@ -289,9 +291,10 @@ def add_live_unit_price_share_hold(reader, price_file=None):
                     else:
                         unit_price = get_most_recent_share_price(value_sh.upper()+'.AX')
                     if unit_price == 0:
-                        raise ShareCalculationException('Unit price not available to continue calculation!')
-                except ShareCalculationException as e:
-                    raise e
+                        raise ShareCalculationException(
+                            'Unit price not available to continue calculation!')
+                except ShareCalculationException as price_excep:
+                    raise price_excep
             elif key_sh.lower() == 'units':
                 number_of_units = float(value_sh)
             elif key_sh.lower() == 'cost base':
