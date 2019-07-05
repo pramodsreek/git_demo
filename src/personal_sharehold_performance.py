@@ -78,20 +78,20 @@ def write_to_file(calculations, filename):
         for x in range(len(calculations)):
             writer.writerow(calculations[x])
 
-def print_to_console(displayRows):
+def print_to_console(display_rows):
     """
         Writes output to a console.
 
         Keyword arguments:
-        displayRows -- an ordered dictionary of each share details as a row
+        display_rows -- an ordered dictionary of each share details as a row
 
     """
-    heaDer = (
+    head_er = (
         "'TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value', " +
         "'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', " +
         "'Capital Gain Percentage', 'Capital Loss Percentage'")
-    print(heaDer)
-    for x in range(len(displayRows)):
+    print(head_er)
+    for x in range(len(display_rows)):
         row = ''
         for _, v in result[x].items():
             if row == '':
@@ -261,8 +261,7 @@ def print_to_console_summary(total_cost_base, total_value, total_units, total_ca
 
     """
     summary_text_format = fg("white") + attr("bold") + bg("blue")
-    print(
-        stylize("****** Summary of Share Holding - These are unrealised values ******", summary_text_format))
+    print(stylize("****** Summary of Share Holding - These are unrealised values ******", summary_text_format))
     summary_text_format = fg("white") + attr("bold") + bg("green")
     print(stylize("Total Cost Base of Share Holding : " + str(total_cost_base), summary_text_format))
     print(stylize("Total Value of Share Holding : " + str(total_value), summary_text_format))
@@ -336,24 +335,24 @@ def add_live_unit_price_share_hold(reader, price_file=None):
         date_of_purchase = dt.datetime.strptime('04/07/2019', '%d/%m/%Y')
         capital_gain_percentage = 0
         capital_loss_percentage = 0
-        for k, v in raw.items():
-            new_dict_values[k] = v
-            if k.lower() == 'ticker':
+        for key_sh, value_sh in raw.items():
+            new_dict_values[key_sh] = value_sh
+            if key_sh.lower() == 'ticker':
                 try:
                     if price_file != None:
                         for p, r in price_file.items():
-                            if p.lower() == v.lower():
+                            if p.lower() == value_sh.lower():
                                 unit_price = float(r)
                     else:
-                        unit_price = get_most_recent_share_price(v.upper()+'.AX')
+                        unit_price = get_most_recent_share_price(value_sh.upper()+'.AX')
                 except Exception as e:
                     raise e
-            elif k.lower() == 'units':
-                number_of_units = float(v)
-            elif k.lower() == 'cost base':
-                cost_base = float(v)
-            elif k.lower() == 'date of purchase':
-                date_of_purchase = dt.datetime.strptime(v, '%d/%m/%Y')
+            elif key_sh.lower() == 'units':
+                number_of_units = float(value_sh)
+            elif key_sh.lower() == 'cost base':
+                cost_base = float(value_sh)
+            elif key_sh.lower() == 'date of purchase':
+                date_of_purchase = dt.datetime.strptime(value_sh, '%d/%m/%Y')
             else:
                 continue
 
@@ -370,7 +369,7 @@ def add_live_unit_price_share_hold(reader, price_file=None):
             capital_gain_percentage = (capital_gain_nondiscounted/cost_base)*100
             capital_loss_percentage = 0
             capital_loss = 0
-            if (days_held > 365):
+            if days_held > 365:
                 capital_gain_discounted = capital_gain_loss/2
             else:
                 capital_gain_discounted = 0
@@ -405,7 +404,7 @@ def add_live_unit_price_share_hold(reader, price_file=None):
     return all_units_with_calculations, round(total_cost_base, 3), round(total_value, 3), round(total_units, 3), round(total_capital_gain_nondiscounted, 3), round(total_capital_gain_discounted, 3), round(total_capital_loss, 3)
 
 
-# Main function equivalent to run it as a terminal app. 
+# Main function equivalent to run it as a terminal app.
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(
         description='Personal Shareholding Performance')
