@@ -7,32 +7,37 @@ Date: 2019/06/29
 Licence: GPLv3
 Version: 0.1
 
-Personal Share Holding Performance is a tool that can summarise the value of share portfolio for a single user. 
-The user should provide a file input with all the shares that user holds. The csv(comma separated file) file should contain the following data in the format below. 
+Personal Share Holding Performance is a tool that can summarise the value of share portfolio
+for a single user.
+The user should provide a file input with all the shares that user holds. The csv(comma
+separated file) file should contain the following data in the format below.
 
 TICKER,Date of Purchase,Units,Cost Base
 ALQ,13/12/2008,10,190.71
 ALU,14/12/2008,10,377
 ALX,15/12/2008,10,88.87
 
-If the user wishes to calculate the total value of share holding based on a price, then a price file should be provided in the following format. 
+If the user wishes to calculate the total value of share holding based on a price, then a
+price file should be provided in the following format.
 
 TICKER,Date,Unit Price
 ALQ,1/07/2019,19.071
 ALU,1/07/2019,37.7
 ALX,1/07/2019,8.887
 
-All the file should be in the current folder and should have permissions to read. 
+All the file should be in the current folder and should have permissions to read.
 
 If the user wishes to write the output to a file, then the output filename should be provided.
 
-The arguments should be passed in the following format. The output file is written to current directory and permission to write file is required.
+The arguments should be passed in the following format. The output file is written to current
+directory and permission to write file is required.
 
 python3 personal_sharehold_performance.py -i Capitalgains.csv -p Shareprice.csv -o output.csv
 
-If no price file is provided, the price will be retrieved using yahoo finance. This can only work for ASX shares. 
+If no price file is provided, the price will be retrieved using yahoo finance. This can only
+work for ASX shares.
 
-The summary of output will have the following details. 
+The summary of output will have the following details.
 ****** Summary of Share Holding - These are unrealised values ******
 Total Cost Base of Share Holding : 1617.21
 Total Value of Share Holding : 2100.4
@@ -49,8 +54,8 @@ import argparse
 import os
 import csv
 import datetime as dt
-from yahoo_fin import stock_info as si
 import collections as collection
+from yahoo_fin import stock_info as si
 from colored import fg, bg, attr, stylize
 
 
@@ -64,8 +69,9 @@ def write_to_file(result, filename):
 
     """
     with open(filename, 'w', newline='') as csvfile:
-        fieldnames = ['TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value', 
-'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 'Capital Gain Percentage', 'Capital Loss Percentage']
+        fieldnames = ['TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price',
+        'Value','Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 
+        'Capital Gain Percentage', 'Capital Loss Percentage']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for x in range(len(result)): 
@@ -108,7 +114,7 @@ def validate_price_file_ret_dict(reader):
     price = 0.0
     for raw in reader:
         for k, v in raw.items():
-            if (k is None) or (str(k).strip()=="") or (v is None) or (str(v).strip()==""): 
+            if (k is None) or (str(k).strip()=="") or (v is None) or (str(v).strip()==""):
                 raise Exception("Data in the price file is not valid! None of the values in the header or price data can be empty!")
             elif (k.lower() not in ('ticker','date','unit price')):
                 raise Exception("Data in the price file is not valid! Please make sure the first row or header is correct. The header in the csv file should have 'ticker','date','unit price'")
@@ -265,9 +271,9 @@ def add_live_unit_price_share_hold(reader, price_file = None):
     """
     The most important function to go through the share portfolio and calculate the capital gains discounted, capital gains non-discounted and loses. Discounts are calculated based on the date of purchase and based on Australian Taxation Offices capital gains discounting process.
     Calculates the percentage gains or loses based on the ticker + Date of purchase + Units. Dates in future is not validated in this release. The calculations can be done based on the price file provided as input or from yahoo finance interface. 
-    
+
     Keyword arguments:
-        reader -- Handle to ordered dictionary of the share portfolio created from the input csv file.  
+        reader -- Handle to ordered dictionary of the share portfolio created from the input csv file.
         price_file -- Optional dictionary of share prices, only required if user wants to calculate the value of share portfolio based on a price.  
     
     """
@@ -374,32 +380,22 @@ def add_live_unit_price_share_hold(reader, price_file = None):
 
 # Main function equivalent to run it as a terminal app. 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
+    PARSER = argparse.ArgumentParser(
         description='Personal Shareholding Performance')
-    parser.add_argument('-i','--input', help='Input file name that contains a persons shareholding.The file should be in CSV format.', required=True)
-    parser.add_argument('-o','--output', help='Output file name where the performance data should be stored. If this option is not used, performance data will be printed on console.', default="stdout")
-    parser.add_argument('-p','--price', help='If a specific unit price should be used for understanding performance, it can be provided as input. This option can also be used if recent unit price cannot be retrieved from internet.')
-    args = parser.parse_args()
-
-    
+    PARSER.add_argument('-i','--input', help='Input file name that contains a persons shareholding.The file should be in CSV format.', required=True)
+    PARSER.add_argument('-o','--output', help='Output file name where the performance data should be stored. If this option is not used, performance data will be printed on console.', default="stdout")
+    PARSER.add_argument('-p','--price', help='If a specific unit price should be used for understanding performance, it can be provided as input. This option can also be used if recent unit price cannot be retrieved from internet.')
+    ARGS = PARSER.parse_args()
 
     try:
-
-        
-
-        share_file = convert_share_file_to_dict(args.input)
-        
+        share_file = convert_share_file_to_dict(ARGS.input)
         price_file = None
+        if ARGS.price is not None:
+            price_file = convert_price_file_to_dict(ARGS.price)
 
-        if args.price is not None:
-            price_file = convert_price_file_to_dict(args.price)
-            
         result, total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss = add_live_unit_price_share_hold(share_file, price_file)
-       
-        
-        
-        write_to_file(result, args.output)
-        
+
+        write_to_file(result, ARGS.output)
         print_to_console(result)
 
         print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss)
@@ -407,7 +403,4 @@ if __name__ == '__main__':
     except Exception as err:
         error_text_format = fg("white") + attr("bold") + bg("red")
         print(stylize(str(err), error_text_format))
-    
-    
-    
 
