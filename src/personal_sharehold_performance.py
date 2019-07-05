@@ -69,12 +69,13 @@ def write_to_file(calculations, filename):
 
     """
     with open(filename, 'w', newline='') as csvfile:
-        fieldnames = ['TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price',
-        'Value', 'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 
-        'Capital Gain Percentage', 'Capital Loss Percentage']
+        fieldnames = [
+            'TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value',
+            'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss',
+            'Capital Gain Percentage', 'Capital Loss Percentage']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for x in range(len(calculations)): 
+        for x in range(len(calculations)):
             writer.writerow(calculations[x])
 
 def print_to_console(displayRows):
@@ -83,15 +84,17 @@ def print_to_console(displayRows):
 
         Keyword arguments:
         displayRows -- an ordered dictionary of each share details as a row
-        
 
     """
-    print("'TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value', " + 
-        "'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 'Capital Gain Percentage', 'Capital Loss Percentage'")
-    for x in range(len(displayRows)): 
+    heaDer = (
+        "'TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value', " +
+        "'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', " +
+        "'Capital Gain Percentage', 'Capital Loss Percentage'")
+    print(heaDer)
+    for x in range(len(displayRows)):
         row = ''
         for _, v in result[x].items():
-            if (row == ''):
+            if row == '':
                 row += v
             else:
                 row = row + ',' + str(v)
@@ -112,7 +115,6 @@ def validate_price_file_ret_dict(reader):
         Keyword arguments:
         reader -- A Ordered Dictionary reader was used, as it provided the functionality to load
         contents of csv file and maintain the order.
-        
 
     """
     prices = {}
@@ -121,17 +123,22 @@ def validate_price_file_ret_dict(reader):
     for raw in reader:
         for k, v in raw.items():
             if (k is None) or (str(k).strip() == "") or (v is None) or (str(v).strip() == ""):
-                raise Exception("Data in the price file is not valid! None of the values in the header or price data can be empty!")
+                raise Exception(
+                    "Data in the price file is not valid! None of the values in " +
+                    "the header or price data can be empty!")
             elif (k.lower() not in ('ticker', 'date', 'unit price')):
-                raise Exception("Data in the price file is not valid! Please make sure the first row or header is correct. The header in the csv file should have 'ticker','date','unit price'")
-            elif (k.lower() == 'ticker'):
+                raise Exception(
+                    "Data in the price file is not valid! Please make sure the " +
+                    "first row or header is correct. The header in the csv file " +
+                    "should have 'ticker','date','unit price'")
+            elif k.lower() == 'ticker':
                 ticker = v
-            elif (k.lower() == 'date'):
+            elif k.lower() == 'date':
                 try:
                     dt.datetime.strptime(v, '%d/%m/%Y')
                 except ValueError:
                     raise Exception("Incorrect date format, should be DD/MM/YYYY")
-            elif (k.lower() == 'unit price'):
+            elif k.lower() == 'unit price':
                 price = v
                 try:
                     float(v)
@@ -143,11 +150,10 @@ def validate_price_file_ret_dict(reader):
 def convert_price_file_to_dict(filename):
     """
         Converts the input price file to a dictionary. The order is not important, but DictReader
-        was used, as it is a superior utility to read a csv file. 
+        was used, as it is a superior utility to read a csv file.
 
         Keyword arguments:
         file -- Name of the share price file provided by the user.
-        
     """
     exists = os.path.isfile(filename)
     if exists:
@@ -202,8 +208,8 @@ def get_most_recent_share_price(ticker):
 
         Keyword arguments:
         ticker -- Ticker is the short code for ASX listed company.
-        
     """
+
     try:
         
         price = si.get_live_price(ticker)
@@ -236,7 +242,9 @@ def get_recent_share_price(ticker, pricereader):
                     price = v
         return price
     except ValueError:
-        raise Exception("Error retrieving data from csv price file. Please check the files to validate data. Please provide it in a file with corrected data.")
+        raise Exception(
+            "Error retrieving data from csv price file. Please check " +
+            "the files to validate data. Please provide it in a file with corrected data.")
 
 def print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss):
     """
@@ -265,11 +273,17 @@ def print_to_console_summary(total_cost_base, total_value, total_units, total_ca
 
 def convert_share_file_to_dict(filename):
     """
-        Converts the share portfolio file to a Ordered Dictionary. It maintains the order of rows and columns. The Reader is the handle to Ordered dictionary and is used to go through rows and columns. An exception is thrown if there is an issue with the conversion.
+        Converts the share portfolio file to a Ordered Dictionary.
+        It maintains the order of rows and columns. The Reader is the
+        handle to Ordered dictionary and is used to go through rows
+        and columns. An exception is thrown if there is an issue with
+        the conversion.
 
         Keyword arguments:
-        filename -- Filename of the share file. The file is in the same directory as the code. Placing the file in other directories is not tested for this release.  
-        
+        filename -- Filename of the share file. The file is in the same
+        directory as the code. Placing the file in other directories is
+        not tested for this release.
+
     """
     exists = os.path.isfile(filename)
     if exists:
@@ -282,12 +296,20 @@ def convert_share_file_to_dict(filename):
 
 def add_live_unit_price_share_hold(reader, price_file=None):
     """
-    The most important function to go through the share portfolio and calculate the capital gains discounted, capital gains non-discounted and loses. Discounts are calculated based on the date of purchase and based on Australian Taxation Offices capital gains discounting process.
-    Calculates the percentage gains or loses based on the ticker + Date of purchase + Units. Dates in future is not validated in this release. The calculations can be done based on the price file provided as input or from yahoo finance interface. 
+    The most important function to go through the share portfolio and calculate
+    the capital gains discounted, capital gains non-discounted and loses.
+    Discounts are calculated based on the date of purchase and based on Australian
+    Taxation Offices capital gains discounting process.
+    Calculates the percentage gains or loses based on the ticker +
+    Date of purchase + Units. Dates in future is not validated in
+    this release. The calculations can be done based on the price
+    file provided as input or from yahoo finance interface.
 
     Keyword arguments:
-        reader -- Handle to ordered dictionary of the share portfolio created from the input csv file.
-        price_file -- Optional dictionary of share prices, only required if user wants to calculate the value of share portfolio based on a price.  
+        reader -- Handle to ordered dictionary of the share portfolio created
+        from the input csv file.
+        price_file -- Optional dictionary of share prices, only required if user
+        wants to calculate the value of share portfolio based on a price.  
     
     """
 
@@ -331,11 +353,11 @@ def add_live_unit_price_share_hold(reader, price_file=None):
                 
                 
                 
-            elif (k.lower() == 'units'):
+            elif k.lower() == 'units':
                 number_of_units = float(v)   
-            elif (k.lower() == 'cost base'):
+            elif k.lower() == 'cost base':
                 cost_base = float(v)
-            elif (k.lower() == 'date of purchase'):
+            elif k.lower() == 'date of purchase':
                 date_of_purchase = dt.datetime.strptime(v, '%d/%m/%Y')
             else:
                 continue
@@ -348,7 +370,7 @@ def add_live_unit_price_share_hold(reader, price_file=None):
         new_dict_values['Value'] = round(value, 3)
         capital_gain_loss = (unit_price * number_of_units) -  cost_base
         days_held = (todays_date - date_of_purchase).days
-        if (capital_gain_loss >= 0):
+        if capital_gain_loss >= 0:
             capital_gain_nondiscounted = capital_gain_loss
             capital_gain_percentage = (capital_gain_nondiscounted/cost_base)*100
             capital_loss_percentage = 0
@@ -395,9 +417,17 @@ def add_live_unit_price_share_hold(reader, price_file=None):
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(
         description='Personal Shareholding Performance')
-    PARSER.add_argument('-i', '--input', help='Input file name that contains a persons shareholding.The file should be in CSV format.', required=True)
-    PARSER.add_argument('-o', '--output', help='Output file name where the performance data should be stored. If this option is not used, performance data will be printed on console.', default="stdout")
-    PARSER.add_argument('-p', '--price', help='If a specific unit price should be used for understanding performance, it can be provided as input. This option can also be used if recent unit price cannot be retrieved from internet.')
+    PARSER.add_argument(
+        '-i', '--input', help='Input file name that contains a persons shareholding.' +
+        'The file should be in CSV format.', required=True)
+    PARSER.add_argument(
+        '-o', '--output', help='Output file name where the performance ' +
+        'data should be stored. If this option is not used, performance data will be ' +
+        'printed on console.', default="stdout")
+    PARSER.add_argument(
+        '-p', '--price', help='If a specific unit price should be used ' +
+        'for understanding performance, it can be provided as input. This option can also ' +
+        'be used if recent unit price cannot be retrieved from internet.')
     ARGS = PARSER.parse_args()
 
     try:
@@ -416,4 +446,3 @@ if __name__ == '__main__':
     except Exception as err:
         error_text_format = fg("white") + attr("bold") + bg("red")
         print(stylize(str(err), error_text_format))
-
