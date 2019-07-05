@@ -80,8 +80,8 @@ def write_to_file(calculations, filename):
             'Capital Gain Percentage', 'Capital Loss Percentage']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for x in range(len(calculations)):
-            writer.writerow(calculations[x])
+        for row_cal in range(len(calculations)):
+            writer.writerow(calculations[row_cal])
 
 def print_to_console(display_rows):
     """
@@ -127,27 +127,27 @@ def validate_price_file_ret_dict(reader):
     ticker = ''
     price = 0.0
     for raw in reader:
-        for k, v in raw.items():
-            if (k is None) or (str(k).strip() == "") or (v is None) or (str(v).strip() == ""):
+        for tick, pric in raw.items():
+            if (tick is None) or (str(tick).strip() == "") or (pric is None) or (str(pric).strip() == ""):
                 raise ShareCalculationException(
                     "Data in the price file is not valid! None of the values in " +
                     "the header or price data can be empty!")
-            elif k.lower() not in ('ticker', 'date', 'unit price'):
+            elif tick.lower() not in ('ticker', 'date', 'unit price'):
                 raise ShareCalculationException(
                     "Data in the price file is not valid! Please make sure the " +
                     "first row or header is correct. The header in the csv file " +
                     "should have 'ticker','date','unit price'")
-            elif k.lower() == 'ticker':
-                ticker = v
-            elif k.lower() == 'date':
+            elif tick.lower() == 'ticker':
+                ticker = pric
+            elif tick.lower() == 'date':
                 try:
-                    dt.datetime.strptime(v, '%d/%m/%Y')
+                    dt.datetime.strptime(pric, '%d/%m/%Y')
                 except ValueError:
                     raise ShareCalculationException("Incorrect date format, should be DD/MM/YYYY")
-            elif k.lower() == 'unit price':
-                price = v
+            elif tick.lower() == 'unit price':
+                price = pric
                 try:
-                    float(v)
+                    float(pric)
                 except ValueError:
                     raise ShareCalculationException("Cost base should be float!")
         prices[ticker] = price
@@ -285,9 +285,9 @@ def add_live_unit_price_share_hold(reader, price_file=None):
             if key_sh.lower() == 'ticker':
                 try:
                     if price_file != None:
-                        for p, r in price_file.items():
-                            if p.lower() == value_sh.lower():
-                                unit_price = float(r)
+                        for name_sh, pr_ice in price_file.items():
+                            if name_sh.lower() == value_sh.lower():
+                                unit_price = float(pr_ice)
                     else:
                         unit_price = get_most_recent_share_price(value_sh.upper()+'.AX')
                     if unit_price == 0:
