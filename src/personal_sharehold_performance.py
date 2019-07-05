@@ -284,7 +284,7 @@ def add_live_unit_price_share_hold(reader, price_file=None):
             new_dict_values[key_sh] = value_sh
             if key_sh.lower() == 'ticker':
                 try:
-                    if price_file != None:
+                    if price_file is not None:
                         for name_sh, pr_ice in price_file.items():
                             if name_sh.lower() == value_sh.lower():
                                 unit_price = float(pr_ice)
@@ -337,7 +337,8 @@ def add_live_unit_price_share_hold(reader, price_file=None):
 
         all_units_with_calculations.append(new_dict_values)
 
-    # adding the sum or total columns to last line. It is ordered, so that it appears properly on excel file
+    # adding the sum or total columns to last line. It is ordered, so
+    # that it appears properly on excel file
     new_dict_values = collection.OrderedDict()
     new_dict_values['TICKER'] = 'Total'
     new_dict_values['Date of Purchase'] = ''
@@ -386,7 +387,9 @@ if __name__ == '__main__':
         write_to_file(PROCESSED_DATA, ARGS.output)
         print_to_console(PROCESSED_DATA)
 
-        print_to_console_summary(TOTAL_CST_BASE, TOTAL_VLUE, TOTAL_UNTS, TOTAL_CAPTAL_GAIN_NONDISCOUNTED, TOTAL_CAPTAL_GAIN_DISCOUNTED, TOTAL_CAPTAL_LOSS)
+        print_to_console_summary(
+            TOTAL_CST_BASE, TOTAL_VLUE, TOTAL_UNTS, TOTAL_CAPTAL_GAIN_NONDISCOUNTED,
+            TOTAL_CAPTAL_GAIN_DISCOUNTED, TOTAL_CAPTAL_LOSS)
 
     except ShareCalculationException as err:
         ERROR_TEXT_FORMAT = fg("white") + attr("bold") + bg("red")
