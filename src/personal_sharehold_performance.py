@@ -1,10 +1,21 @@
 #!/usr/bin/python3
 """
+Personal Share Holding Performance is a tool that can summarise the value of share portfolio for a single user. The input 
+
+****** Summary of Share Holding - These are unrealised values ******
+Total Cost Base of Share Holding : 1617.21
+Total Value of Share Holding : 2100.4
+Total Units of Share Holding : 150.0
+Total Capital Gain that is not Discounted : 1164.59
+Total Capital Gain that is Discounted : 582.295
+Total Capital Losses : -681.4
+
 Author: Pramod S
 Contact: @coderacademy.edu.au
 Date: 2019/06/29
 Licence: GPLv3
 Version: 0.1
+
 """
 
 import argparse
@@ -196,7 +207,7 @@ def add_live_unit_price_share_hold(reader, price_file = None):
                             if(p.lower() == v.lower()):
                                 unit_price = float(r)
                     else:
-                        unit_price = get_most_recent_share_price(v+'.AX')
+                        unit_price = get_most_recent_share_price(v.upper()+'.AX')
                 except Exception as e:
                     raise e
                 
