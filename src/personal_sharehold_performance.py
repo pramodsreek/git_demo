@@ -164,49 +164,9 @@ def convert_price_file_to_dict(filename):
     exists = os.path.isfile(filename)
     if exists:
         reader = csv.DictReader(open(filename))
-        return validate_price_file_ret_dict(reader)
     else:
         raise ShareCalculationException(f'The file {filename} does not exist.')
-
-
-def validate_share_file_data(reader):
-    """
-        Validate input share holding file and if valid return True. If there is an issue with
-        the content, an exception will be thrown and the calling module should handle the
-        exception. Date is only validated for the format. The future date validation is not done.
-
-        Keyword arguments:
-        reader -- A Ordered Dictionary reader was used, as it provided the functionality to load
-        contents of csv file. Other data structures can be used instead of DictReader in this case,
-        as the order is not necessarily important.
-    """
-    for raw in reader:
-        for k, v in raw.items():
-            if (k is None) or (str(k).strip() == "") or (v is None) or (str(v).strip() == ""):
-                raise ShareCalculationException(
-                    "Data in the share file is not valid! None of the values in the header " +
-                    "or share data can be empty!")
-            elif k.lower() not in ('ticker', 'date of purchase', 'units', 'cost base'):
-                raise ShareCalculationException(
-                    "Data in the share file is not valid! Please make sure the first " +
-                    "row or header is correct. The header in the csv file should have " +
-                    "'ticker','date of purchase','units','cost base'")
-            elif k.lower() == 'date of purchase':
-                try:
-                    dt.datetime.strptime(v, '%d/%m/%Y')
-                except ValueError:
-                    raise ShareCalculationException("Incorrect data format, should be DD/MM/YYYY")
-            elif k.lower() == 'cost base':
-                try:
-                    float(v)
-                except ValueError:
-                    raise ShareCalculationException("Cost base should be float!")
-            elif k.lower() == 'Units':
-                try:
-                    int(v)
-                except ValueError:
-                    raise ShareCalculationException("Units should be int!")
-    return True
+    return validate_price_file_ret_dict(reader)
 
 def get_most_recent_share_price(ticker):
     """
@@ -243,7 +203,8 @@ def print_to_console_summary(total_cost_base, total_value, total_units, total_ca
     """
     print('\n')
     summary_text_format = fg("white") + attr("bold") + bg("blue")
-    print(stylize("****** Summary of Share Holding - These are unrealised values ******", summary_text_format))
+    print_text = "****** Summary of Share Holding - These are unrealised values ******"
+    print(stylize(print_text, summary_text_format))
     summary_text_format = fg("white") + attr("bold") + bg("green")
     print(stylize("Total Cost Base of Share Holding : " + str(total_cost_base), summary_text_format))
     print(stylize("Total Value of Share Holding : " + str(total_value), summary_text_format))
@@ -272,7 +233,6 @@ def convert_share_file_to_dict(filename):
     exists = os.path.isfile(filename)
     if exists:
         reader = csv.DictReader(open(filename))
-        #validate_share_file_data(reader)
         return reader
     else:
         raise ShareCalculationException(f'The file {filename} does not exist.')
