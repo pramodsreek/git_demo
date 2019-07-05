@@ -58,6 +58,11 @@ import collections as collection
 from yahoo_fin import stock_info as si
 from colored import fg, bg, attr, stylize
 
+class ShareCalculationException(Exception):
+    """
+    Defining a customised exception
+    """
+    pass
 
 def write_to_file(calculations, filename):
     """
@@ -124,11 +129,11 @@ def validate_price_file_ret_dict(reader):
     for raw in reader:
         for k, v in raw.items():
             if (k is None) or (str(k).strip() == "") or (v is None) or (str(v).strip() == ""):
-                raise Exception(
+                raise ShareCalculationException(
                     "Data in the price file is not valid! None of the values in " +
                     "the header or price data can be empty!")
             elif k.lower() not in ('ticker', 'date', 'unit price'):
-                raise Exception(
+                raise ShareCalculationException(
                     "Data in the price file is not valid! Please make sure the " +
                     "first row or header is correct. The header in the csv file " +
                     "should have 'ticker','date','unit price'")
@@ -138,13 +143,13 @@ def validate_price_file_ret_dict(reader):
                 try:
                     dt.datetime.strptime(v, '%d/%m/%Y')
                 except ValueError:
-                    raise Exception("Incorrect date format, should be DD/MM/YYYY")
+                    raise ShareCalculationException("Incorrect date format, should be DD/MM/YYYY")
             elif k.lower() == 'unit price':
                 price = v
                 try:
                     float(v)
                 except ValueError:
-                    raise Exception("Cost base should be float!")
+                    raise ShareCalculationException("Cost base should be float!")
         prices[ticker] = price
     return prices
 
@@ -161,7 +166,7 @@ def convert_price_file_to_dict(filename):
         reader = csv.DictReader(open(filename))
         return validate_price_file_ret_dict(reader)
     else:
-        raise Exception(f'The file {filename} does not exist.')
+        raise ShareCalculationException(f'The file {filename} does not exist.')
 
 
 def validate_share_file_data(reader):
@@ -178,11 +183,11 @@ def validate_share_file_data(reader):
     for raw in reader:
         for k, v in raw.items():
             if (k is None) or (str(k).strip() == "") or (v is None) or (str(v).strip() == ""):
-                raise Exception(
+                raise ShareCalculationException(
                     "Data in the share file is not valid! None of the values in the header " +
                     "or share data can be empty!")
             elif k.lower() not in ('ticker', 'date of purchase', 'units', 'cost base'):
-                raise Exception(
+                raise ShareCalculationException(
                     "Data in the share file is not valid! Please make sure the first " +
                     "row or header is correct. The header in the csv file should have " +
                     "'ticker','date of purchase','units','cost base'")
@@ -190,17 +195,17 @@ def validate_share_file_data(reader):
                 try:
                     dt.datetime.strptime(v, '%d/%m/%Y')
                 except ValueError:
-                    raise Exception("Incorrect data format, should be DD/MM/YYYY")
+                    raise ShareCalculationException("Incorrect data format, should be DD/MM/YYYY")
             elif k.lower() == 'cost base':
                 try:
                     float(v)
                 except ValueError:
-                    raise Exception("Cost base should be float!")
+                    raise ShareCalculationException("Cost base should be float!")
             elif k.lower() == 'Units':
                 try:
                     int(v)
                 except ValueError:
-                    raise Exception("Units should be int!")
+                    raise ShareCalculationException("Units should be int!")
     return True
 
 def get_most_recent_share_price(ticker):
@@ -217,36 +222,11 @@ def get_most_recent_share_price(ticker):
         price = si.get_live_price(ticker)
         return price
     except ValueError:
-        raise Exception(
-            "Error retrieving data from ASX. Please check the file to check errors with data. " +
+        raise ShareCalculationException(
+            "Error retrieving data from ASX. Please check the file to find errors with data. " +
             "If unit prices can be retrieved manually, Please provide it in a file.")
 
-def get_recent_share_price(ticker, pricereader):
-    """
-        Gets the share price from the file that was provided by the user. If there is an
-        issue with the ticker or fetching the data or missing data, an exception is thrown.
 
-        Keyword arguments:
-        ticker -- Ticker is the short code for ASX listed company.
-        pricereader -- A dictionary of share prices.
-
-    """
-    try:
-        price = 0
-
-        for raw in pricereader:
-
-            for k, v in raw.items():
-                if (k.lower() == 'ticker' and v.lower() != ticker.lower()):
-                    pass
-
-                if k.lower() == 'unit price':
-                    price = v
-        return price
-    except ValueError:
-        raise Exception(
-            "Error retrieving data from csv price file. Please check " +
-            "the files to validate data. Please provide it in a file with corrected data.")
 
 def print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss):
     """
@@ -295,7 +275,7 @@ def convert_share_file_to_dict(filename):
         #validate_share_file_data(reader)
         return reader
     else:
-        raise Exception(f'The file {filename} does not exist.')
+        raise ShareCalculationException(f'The file {filename} does not exist.')
 
 def add_live_unit_price_share_hold(reader, price_file=None):
     """
@@ -348,7 +328,9 @@ def add_live_unit_price_share_hold(reader, price_file=None):
                                 unit_price = float(r)
                     else:
                         unit_price = get_most_recent_share_price(value_sh.upper()+'.AX')
-                except Exception as e:
+                    if unit_price == 0:
+                        raise ShareCalculationException('Unit price not available to continue calculation!')
+                except ShareCalculationException as e:
                     raise e
             elif key_sh.lower() == 'units':
                 number_of_units = float(value_sh)
@@ -443,6 +425,6 @@ if __name__ == '__main__':
 
         print_to_console_summary(total_cost_base, total_value, total_units, total_capital_gain_nondiscounted, total_capital_gain_discounted, total_capital_loss)
 
-    except Exception as err:
+    except ShareCalculationException as err:
         error_text_format = fg("white") + attr("bold") + bg("red")
         print(stylize(str(err), error_text_format))
