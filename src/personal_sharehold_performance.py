@@ -70,7 +70,7 @@ def write_to_file(result, filename):
     """
     with open(filename, 'w', newline='') as csvfile:
         fieldnames = ['TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price',
-        'Value','Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 
+        'Value', 'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 
         'Capital Gain Percentage', 'Capital Loss Percentage']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
@@ -87,7 +87,7 @@ def print_to_console(result):
 
     """
     print("'TICKER', 'Date of Purchase', 'Units', 'Cost Base', 'Unit Price', 'Value', " + 
-"'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 'Capital Gain Percentage', 'Capital Loss Percentage'")
+        "'Capital Gain Non Discounted', 'Capital Gain Discounted', 'Capital Loss', 'Capital Gain Percentage', 'Capital Loss Percentage'")
     for x in range(len(result)): 
         row = ''
         for _, v in result[x].items():
@@ -120,9 +120,9 @@ def validate_price_file_ret_dict(reader):
     price = 0.0
     for raw in reader:
         for k, v in raw.items():
-            if (k is None) or (str(k).strip()=="") or (v is None) or (str(v).strip()==""):
+            if (k is None) or (str(k).strip() == "") or (v is None) or (str(v).strip() == ""):
                 raise Exception("Data in the price file is not valid! None of the values in the header or price data can be empty!")
-            elif (k.lower() not in ('ticker','date','unit price')):
+            elif (k.lower() not in ('ticker', 'date', 'unit price')):
                 raise Exception("Data in the price file is not valid! Please make sure the first row or header is correct. The header in the csv file should have 'ticker','date','unit price'")
             elif (k.lower() == 'ticker'):
                 ticker = v
@@ -173,16 +173,16 @@ def validate_share_file_data(reader):
     for raw in reader:
         
         for k, v in raw.items():
-            if (k is None) or (str(k).strip()=="") or (v is None) or (str(v).strip()==""): 
+            if (k is None) or (str(k).strip() == "") or (v is None) or (str(v).strip() == ""): 
                 raise Exception("Data in the share file is not valid! None of the values in the header or share data can be empty!")
-            elif (k.lower() not in ('ticker','date of purchase','units','cost base')):
+            elif (k.lower() not in ('ticker', 'date of purchase', 'units', 'cost base')):
                 raise Exception("Data in the share file is not valid! Please make sure the first row or header is correct. The header in the csv file should have 'ticker','date of purchase','units','cost base'")
-            elif (k.lower() == 'date of purchase'):
+            elif k.lower() == 'date of purchase':
                 try:
                     dt.datetime.strptime(v, '%d/%m/%Y')
                 except ValueError:
                     raise Exception("Incorrect data format, should be DD/MM/YYYY")
-            elif (k.lower() == 'cost base'):
+            elif k.lower() == 'cost base':
                 try:
                     float(v)
                 except ValueError:
@@ -280,7 +280,7 @@ def convert_share_file_to_dict(filename):
     else:
         raise Exception(f'The file {filename} does not exist.')
 
-def add_live_unit_price_share_hold(reader, price_file = None):
+def add_live_unit_price_share_hold(reader, price_file=None):
     """
     The most important function to go through the share portfolio and calculate the capital gains discounted, capital gains non-discounted and loses. Discounts are calculated based on the date of purchase and based on Australian Taxation Offices capital gains discounting process.
     Calculates the percentage gains or loses based on the ticker + Date of purchase + Units. Dates in future is not validated in this release. The calculations can be done based on the price file provided as input or from yahoo finance interface. 
@@ -317,11 +317,11 @@ def add_live_unit_price_share_hold(reader, price_file = None):
         capital_loss_percentage = 0
         for k, v in raw.items():
             
-            new_dict_values[k]=v
+            new_dict_values[k] = v
             if (k.lower() == 'ticker'):
                 try:
                     if (price_file != None):
-                        for p,r in price_file.items():
+                        for p, r in price_file.items():
                             if(p.lower() == v.lower()):
                                 unit_price = float(r)
                     else:
@@ -340,7 +340,7 @@ def add_live_unit_price_share_hold(reader, price_file = None):
             else:
                 continue
         
-        new_dict_values['Unit Price'] = round(unit_price,3)
+        new_dict_values['Unit Price'] = round(unit_price, 3)
         value = unit_price * number_of_units
         total_value += value
         total_units += number_of_units
@@ -383,9 +383,9 @@ def add_live_unit_price_share_hold(reader, price_file = None):
     new_dict_values['Value'] = str(round(total_value, 3))
     new_dict_values['Capital Gain Non Discounted'] = str(round(total_capital_gain_nondiscounted, 3))
     new_dict_values['Capital Gain Discounted'] = str(round(total_capital_gain_discounted, 3))
-    new_dict_values['Capital Loss'] = str(round(total_capital_loss,3))
+    new_dict_values['Capital Loss'] = str(round(total_capital_loss, 3))
     all_units_with_calculations.append(new_dict_values)
-    return all_units_with_calculations, round(total_cost_base,3), round(total_value, 3), round(total_units, 3), round(total_capital_gain_nondiscounted, 3), round(total_capital_gain_discounted, 3), round(total_capital_loss, 3)
+    return all_units_with_calculations, round(total_cost_base, 3), round(total_value, 3), round(total_units, 3), round(total_capital_gain_nondiscounted, 3), round(total_capital_gain_discounted, 3), round(total_capital_loss, 3)
 
 
 
@@ -395,9 +395,9 @@ def add_live_unit_price_share_hold(reader, price_file = None):
 if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(
         description='Personal Shareholding Performance')
-    PARSER.add_argument('-i','--input', help='Input file name that contains a persons shareholding.The file should be in CSV format.', required=True)
-    PARSER.add_argument('-o','--output', help='Output file name where the performance data should be stored. If this option is not used, performance data will be printed on console.', default="stdout")
-    PARSER.add_argument('-p','--price', help='If a specific unit price should be used for understanding performance, it can be provided as input. This option can also be used if recent unit price cannot be retrieved from internet.')
+    PARSER.add_argument('-i', '--input', help='Input file name that contains a persons shareholding.The file should be in CSV format.', required=True)
+    PARSER.add_argument('-o', '--output', help='Output file name where the performance data should be stored. If this option is not used, performance data will be printed on console.', default="stdout")
+    PARSER.add_argument('-p', '--price', help='If a specific unit price should be used for understanding performance, it can be provided as input. This option can also be used if recent unit price cannot be retrieved from internet.')
     ARGS = PARSER.parse_args()
 
     try:
