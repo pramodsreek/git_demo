@@ -233,11 +233,12 @@ def convert_share_file_to_dict(filename):
 
     """
     exists = os.path.isfile(filename)
+    if not exists:
+        raise ShareCalculationException(f'The file {filename} does not exist.')
     if exists:
         reader = csv.DictReader(open(filename))
         return reader
-    else:
-        raise ShareCalculationException(f'The file {filename} does not exist.')
+
 
 def add_live_unit_price_share_hold(share_dict, price_dict=None):
     """
