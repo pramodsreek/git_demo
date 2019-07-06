@@ -5,7 +5,7 @@ for a single user. It will provide a report that lists all the shares, units, co
 
 ## Clone
 
-- Clone this repo to your local machine using https://github.com/pramodsreek/git_demo.git`
+- Clone this repo to your local machine using `https://github.com/pramodsreek/personal_share_holding_performance.git`
 
 ## Features
 
