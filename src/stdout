@@ -1,5 +1,0 @@
-TICKER,Date of Purchase,Units,Cost Base,Unit Price,Value,Capital Gain Non Discounted,Capital Gain Discounted,Capital Loss,Capital Gain Percentage,Capital Loss Percentage
-ALQ,13/12/2018,10,190.71,29.071,290.71,100.0,0,0,52.436,0
-ALU,14/12/2008,10,377,17.7,177.0,0,0,-200.0,0,-53.05
-ALX,15/12/2008,10,88.87,38.887,388.87,300.0,150.0,0,337.572,0
-Total,,30.0,656.58,,856.58,400.0,150.0,-200.0,,
